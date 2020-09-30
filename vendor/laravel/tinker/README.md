@@ -11,22 +11,26 @@
 
 Laravel Tinker is a powerful REPL for the Laravel framework.
 
-## Official Documentation
+## Installation
 
-Documentation for Tinker can be found on the [Laravel website](https://laravel.com/docs/artisan#tinker).
+To get started with Laravel Tinker, simply run:
 
-## Contributing
+    composer require laravel/tinker
 
-Thank you for considering contributing to Tinker! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+If you are using Laravel 5.5+, there is no need to manually register the service provider. However, if you are using an earlier version of Laravel, register the `TinkerServiceProvider` in your `app` configuration file:
 
-## Code of Conduct
+```php
+'providers' => [
+    // Other service providers...
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    Laravel\Tinker\TinkerServiceProvider::class,
+],
+```
 
-## Security Vulnerabilities
+## Basic Usage
 
-Please review [our security policy](https://github.com/laravel/tinker/security/policy) on how to report security vulnerabilities.
+From your console, execute the `php artisan tinker` command.
 
 ## License
 
-Laravel Tinker is open-sourced software licensed under the [MIT license](LICENSE.md).
+Laravel Tinker is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)

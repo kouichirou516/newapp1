@@ -1,0 +1,62 @@
+<?php
+
+use Faker\Generator as Faker;
+
+$factory->define(App\Models\GenkouKaishajouhou::class, function (Faker $faker) {
+    return [
+        'status' => 1,
+        'corp_name' => "リクナビ商事",
+        'corp_name_note' => "かもめグループ",
+        'corp_name_kana' => "リクナビショウジ",
+        'search_corp1' => "けんさく",
+        'search_corp2' => "kensaku",
+        'search_corp3' => "検索",
+        'search_corp4' => "検索",
+        'search_corp5' => "検索",
+        'jigyo' => "当社は作業服、事務服、白衣などの各種サービスユニフォームを取り扱う専門店を運営しています。管内700社以上の納入・販売実績を元に、40社以上のユニフォームメーカーの中から、お客さまのニーズに合わせた商品を提供。また経験豊富な営業スタッフが、多数のアイテムの中からベストのコーディネート、アイテムをご提案しています。",
+        'job' => "【WEBプログラマー】
+当社WEBサイトの運営・構築を担当する、WEBプログラマーとして活躍していただきます。
+【現場スタッフ】
+主に来客者への接客対応、商品の受注・発注、店舗内の清掃および電話応対など、店舗全体に関わる業務をお任せする現場スタッフとして活躍していただきます。",
+        'cdata1' => "●作業服・作業用品・などの官公庁・市町村・病院・学校・及び各企業・事業所への販売",
+        'cdata2' => "●作業服・作業用品などの店舗販売",
+        'cdata3' => "●各種衣料品のネーム刺繍・プリント加工",
+        'cdata4' => "1925年6月",
+        'cdata5' => "1,000万円",
+        'cdata6' => "25名",
+        'cdata7' => "4億9千万円",
+        'cdata8' => "代表取締役　太田 孝彦",
+        'cdata9' => "【本社、ワークショップ・オオタ西桔梗店】",
+        'cdata10' => "〒041-0824",
+        'cdata1_title' => "北海道函館市西桔梗町852-5",
+        'cdata2_title' => "TEL：0138-48-2700/FAX：0138-48-2710",
+        'cdata3_title' => "【ワークショップ・オオタ港店】",
+        'cdata4_title' => "北海道函館市亀田港町2-6",
+        'cdata5_title' => "昭和元年6月10日　太田利三郎、函館市千代台町2番14号に於いて太田メリヤス工場及び",
+        'cdata6_title' => "繊維製品の製造販売を創立",
+        'cdata7_title' => "昭和48年11月　太田孝彦継承",
+        'cdata8_title' => "昭和50年6月　工場部門閉鎖",
+        'cdata9_title' => "函館市大川町15番22号に本店を移転",
+        'cdata10_title' => "小売部門 ワークショップ・オオタを開店 卸小売業を始める",
+        'is_stocked' => rand(0, 1),
+        'employee_number' => 1,
+        'search_group_main' => 1,
+        'search_industry_main' => 1,
+        'search_group_sub1' => 1,
+        'search_industry_sub1' => 1,
+        'search_group_sub2' => 1,
+        'search_industry_sub2' => 1,
+        'search_group_sub3' => 1,
+        'search_industry_sub3' => 1,
+        'search_group_sub4' => 1,
+        'search_industry_sub4' => 1,
+        'head_office1' => rand(1, 47),
+        'head_office2' => rand(1, 47),
+        'is_featured1' => rand(0, 1),
+        'is_featured2' => rand(0, 1),
+        'is_featured3' => rand(0, 1),
+        'is_featured4' => rand(0, 1),
+        'is_featured5' => rand(0, 1),
+        'is_featured6' => rand(0, 1),
+    ];
+});

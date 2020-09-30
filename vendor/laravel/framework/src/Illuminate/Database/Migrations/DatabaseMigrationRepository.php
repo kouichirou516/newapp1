@@ -41,7 +41,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     }
 
     /**
-     * Get the completed migrations.
+     * Get the ran migrations.
      *
      * @return array
      */
@@ -81,23 +81,10 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     }
 
     /**
-     * Get the completed migrations with their batch numbers.
-     *
-     * @return array
-     */
-    public function getMigrationBatches()
-    {
-        return $this->table()
-                ->orderBy('batch', 'asc')
-                ->orderBy('migration', 'asc')
-                ->pluck('batch', 'migration')->all();
-    }
-
-    /**
      * Log that a migration was run.
      *
      * @param  string  $file
-     * @param  int  $batch
+     * @param  int     $batch
      * @return void
      */
     public function log($file, $batch)
@@ -167,18 +154,6 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
         $schema = $this->getConnection()->getSchemaBuilder();
 
         return $schema->hasTable($this->table);
-    }
-
-    /**
-     * Delete the migration repository data store.
-     *
-     * @return void
-     */
-    public function deleteRepository()
-    {
-        $schema = $this->getConnection()->getSchemaBuilder();
-
-        $schema->drop($this->table);
     }
 
     /**

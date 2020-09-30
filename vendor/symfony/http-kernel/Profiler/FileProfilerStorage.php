@@ -30,9 +30,11 @@ class FileProfilerStorage implements ProfilerStorageInterface
      *
      * Example : "file:/path/to/the/storage/folder"
      *
+     * @param string $dsn The DSN
+     *
      * @throws \RuntimeException
      */
-    public function __construct(string $dsn)
+    public function __construct($dsn)
     {
         if (0 !== strpos($dsn, 'file:')) {
             throw new \RuntimeException(sprintf('Please check your configuration. You are trying to use FileStorage with an invalid dsn "%s". The expected format is "file:/path/to/the/storage/folder".', $dsn));
@@ -47,18 +49,18 @@ class FileProfilerStorage implements ProfilerStorageInterface
     /**
      * {@inheritdoc}
      */
-    public function find(?string $ip, ?string $url, ?int $limit, ?string $method, int $start = null, int $end = null, string $statusCode = null): array
+    public function find($ip, $url, $limit, $method, $start = null, $end = null, $statusCode = null)
     {
         $file = $this->getIndexFilename();
 
         if (!file_exists($file)) {
-            return [];
+            return array();
         }
 
         $file = fopen($file, 'r');
-        fseek($file, 0, \SEEK_END);
+        fseek($file, 0, SEEK_END);
 
-        $result = [];
+        $result = array();
         while (\count($result) < $limit && $line = $this->readLineFromFile($file)) {
             $values = str_getcsv($line);
             list($csvToken, $csvIp, $csvMethod, $csvUrl, $csvTime, $csvParent, $csvStatusCode) = $values;
@@ -76,7 +78,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
                 continue;
             }
 
-            $result[$csvToken] = [
+            $result[$csvToken] = array(
                 'token' => $csvToken,
                 'ip' => $csvIp,
                 'method' => $csvMethod,
@@ -84,7 +86,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
                 'time' => $csvTime,
                 'parent' => $csvParent,
                 'status_code' => $csvStatusCode,
-            ];
+            );
         }
 
         fclose($file);
@@ -113,14 +115,10 @@ class FileProfilerStorage implements ProfilerStorageInterface
     /**
      * {@inheritdoc}
      */
-    public function read(string $token): ?Profile
+    public function read($token)
     {
         if (!$token || !file_exists($file = $this->getFilename($token))) {
-            return null;
-        }
-
-        if (\function_exists('gzcompress')) {
-            $file = 'compress.zlib://'.$file;
+            return;
         }
 
         return $this->createProfileFromData($token, unserialize(file_get_contents($file)));
@@ -131,7 +129,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
      *
      * @throws \RuntimeException
      */
-    public function write(Profile $profile): bool
+    public function write(Profile $profile)
     {
         $file = $this->getFilename($profile->getToken());
 
@@ -148,12 +146,12 @@ class FileProfilerStorage implements ProfilerStorageInterface
         // when there are errors in sub-requests, the parent and/or children tokens
         // may equal the profile token, resulting in infinite loops
         $parentToken = $profile->getParentToken() !== $profileToken ? $profile->getParentToken() : null;
-        $childrenToken = array_filter(array_map(function (Profile $p) use ($profileToken) {
+        $childrenToken = array_filter(array_map(function ($p) use ($profileToken) {
             return $profileToken !== $p->getToken() ? $p->getToken() : null;
         }, $profile->getChildren()));
 
         // Store profile
-        $data = [
+        $data = array(
             'token' => $profileToken,
             'parent' => $parentToken,
             'children' => $childrenToken,
@@ -163,16 +161,9 @@ class FileProfilerStorage implements ProfilerStorageInterface
             'url' => $profile->getUrl(),
             'time' => $profile->getTime(),
             'status_code' => $profile->getStatusCode(),
-        ];
+        );
 
-        $context = stream_context_create();
-
-        if (\function_exists('gzcompress')) {
-            $file = 'compress.zlib://'.$file;
-            stream_context_set_option($context, 'zlib', 'level', 3);
-        }
-
-        if (false === file_put_contents($file, serialize($data), 0, $context)) {
+        if (false === file_put_contents($file, serialize($data))) {
             return false;
         }
 
@@ -182,7 +173,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
                 return false;
             }
 
-            fputcsv($file, [
+            fputcsv($file, array(
                 $profile->getToken(),
                 $profile->getIp(),
                 $profile->getMethod(),
@@ -190,7 +181,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
                 $profile->getTime(),
                 $profile->getParentToken(),
                 $profile->getStatusCode(),
-            ]);
+            ));
             fclose($file);
         }
 
@@ -200,9 +191,11 @@ class FileProfilerStorage implements ProfilerStorageInterface
     /**
      * Gets filename to store data, associated to the token.
      *
+     * @param string $token
+     *
      * @return string The profile filename
      */
-    protected function getFilename(string $token)
+    protected function getFilename($token)
     {
         // Uses 4 last characters, because first are mostly the same.
         $folderA = substr($token, -2, 2);
@@ -236,7 +229,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
         $position = ftell($file);
 
         if (0 === $position) {
-            return null;
+            return;
         }
 
         while (true) {
@@ -258,7 +251,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
 
             $position += $upTo;
             $line = substr($buffer, $upTo + 1).$line;
-            fseek($file, max(0, $position), \SEEK_SET);
+            fseek($file, max(0, $position), SEEK_SET);
 
             if ('' !== $line) {
                 break;
@@ -268,7 +261,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
         return '' === $line ? null : $line;
     }
 
-    protected function createProfileFromData(string $token, array $data, Profile $parent = null)
+    protected function createProfileFromData($token, $data, $parent = null)
     {
         $profile = new Profile($token);
         $profile->setIp($data['ip']);
@@ -289,10 +282,6 @@ class FileProfilerStorage implements ProfilerStorageInterface
         foreach ($data['children'] as $token) {
             if (!$token || !file_exists($file = $this->getFilename($token))) {
                 continue;
-            }
-
-            if (\function_exists('gzcompress')) {
-                $file = 'compress.zlib://'.$file;
             }
 
             $profile->addChild($this->createProfileFromData($token, unserialize(file_get_contents($file)), $profile));

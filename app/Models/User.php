@@ -2,14 +2,37 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Notifications\CustomPasswordReset;
 
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable;
+
+class User extends Authenticatable {
+    use Notifiable;
+    use SoftDeletes;
+
+    protected $dates = ['deleted_at'];
+
+    public function companies(){
+        if(\Auth::user()->role == 1) {
+            return $this->belongsToMany('App\Models\Company', 'user_companies')->withPivot('is_received');
+        } else {
+            return $this->hasMany('App\Models\Company', 'user_id');
+        }
+    }
+
+    public function activeCompanies(){
+        if(\Auth::user()->role == 1) {
+            return $this->belongsToMany('App\Models\Company', 'user_companies')->orWhere("is_received", 1)->orWhere("is_received_dm", 1);
+        } else {
+            return $this->hasMany('App\Models\Company', 'user_id');
+        }
+    }
+
+    public function group(){
+        return $this->belongsTo('App\Models\Group');
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -17,9 +40,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'group_id', 'workerno', 'role', 'kananame'
     ];
 
     /**
@@ -28,16 +49,15 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomPasswordReset($token));
+    }
+
+//    public function setPasswordAttribute($value){
+//        $this->attributes['password'] = bcrypt($value);
+//    }
 }

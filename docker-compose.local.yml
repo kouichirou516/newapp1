@@ -1,0 +1,39 @@
+version: '3'
+
+networks:
+  rpaform_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.0.0/24
+services:
+  web: &defaults
+    container_name: rpaform_web
+    build: ./
+    ports:
+      - 8000:80
+    depends_on:
+      - mysql
+    volumes:
+      - .:/var/www/html
+    tty: true
+    privileged: true
+    working_dir: "/var/www/html"
+    restart: always
+    networks:
+      rpaform_network:
+        ipv4_address: 10.1.0.100
+  mysql:
+    container_name: rpaform_mysql
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - .db:/var/lib/mysql
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      rpaform_network:
+        ipv4_address: 10.1.0.200
